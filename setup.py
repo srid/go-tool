@@ -36,6 +36,11 @@ setup(
     license="http://www.opensource.org/licenses/mit-license.php",
     py_modules=["go"],
     package_dir={"": "lib"},
+    entry_points={
+        'console_scripts': [
+            'go-setup=go:setup',
+        ]
+    },
     classifiers=filter(None, classifiers.split("\n")),
 )
 

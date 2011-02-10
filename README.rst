@@ -39,12 +39,12 @@ Install Notes
 
 Download the latest (1) ``go`` source package, (2) unzip it, (3) run
 ``python setup.py install`` in the unzipped directory, and (4) run
-``python -m go`` to setup the shell driver::
+``go-setup`` (or ``python -m go``) to setup the shell driver::
 
     unzip go-1.2.1.zip
     cd go-1.2.1
     python setup.py install
-    python -m go   # to setup shell integration
+    go-setup   # to setup shell integration
 
 If your install fails then please visit `the Troubleshooting
 FAQ <http://trentm.com/faq.html#troubleshooting-python-package-installation>`_.
