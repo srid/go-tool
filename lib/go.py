@@ -155,6 +155,21 @@ def getDefaultShortcuts():
         pass
     return shortcuts
 
+def getSourcesShortcuts():
+    """Return the dictionary shortcuts from ~/.sources"""
+    shortcuts = {}
+    sources = os.path.expanduser('~/.sources')
+    if os.path.exists(sources):
+        with open(sources) as f:
+            for line in f.readlines():
+                line = line.strip()
+                if line:
+                    local, vcs, url = line.split()
+                    local = os.path.expanduser(local)
+                    if os.path.exists(local):
+                        shortcuts[os.path.basename(local)] = local
+    return shortcuts
+
 
 def setShortcut(name, value):
     """Add the given shortcut mapping to the XML database.
@@ -198,7 +213,9 @@ def setShortcut(name, value):
 
 def getShortcuts():
     """Return the shortcut dictionary."""
-    shortcuts = getDefaultShortcuts()
+    shortcuts = {}
+    shortcuts.update(getDefaultShortcuts())
+    shortcuts.update(getSourcesShortcuts())
 
     shortcutsXml = getShortcutsFile()
     if os.path.isfile(shortcutsXml):
@@ -287,8 +304,10 @@ def generateShellScript(scriptName, path=None):
 def printShortcuts(shortcuts, subheader=None):
     # Organize the shortcuts into groups.
     defaults = [re.escape(s) for s in getDefaultShortcuts().keys()]
+    sources = [re.escape(s) for s in getSourcesShortcuts().keys()]
     groupMap = { # mapping of group regex to group order and title
         "^(%s)$" % '|'.join(defaults): (0, "Default shortcuts"),
+        "^(%s)$" % '|'.join(sources): (0, "Sources shortcuts"),
         None: (1, "Custom shortcuts"),
     }
     grouped = {
