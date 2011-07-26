@@ -24,12 +24,13 @@ Topic :: Software Development :: Libraries :: Python Modules
 
 _top_dir = os.path.dirname(os.path.abspath(__file__))
 README = open(os.path.join(_top_dir, 'README.rst')).read()
+NEWS = open(os.path.join(_top_dir, 'NEWS.rst')).read()
 
 setup(
     name="go",
     version=go.__version__,
     description='Quick directory changing (super-cd)',
-    long_description=README ,
+    long_description=README + '\n\n' + NEWS,
     maintainer="Trent Mick",
     maintainer_email="trentm@gmail.com",
     url="http://code.google.com/p/go-tool/",
