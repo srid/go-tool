@@ -99,7 +99,7 @@ call python -m go %1 %2 %3 %4 %5 %6 %7 %8 %9
 if exist %GO_SHELL_SCRIPT% call %GO_SHELL_SCRIPT%
 set GO_SHELL_SCRIPT=""",
     "sh": """\
-# Bash shell driver for 'go' (http://code.google.com/p/go-tool/).
+# Bash/ZSH shell driver for 'go' (http://code.google.com/p/go-tool/).
 function go {
     export GO_SHELL_SCRIPT=$HOME/.__tmp_go.sh
     python -m go $*
@@ -109,6 +109,7 @@ function go {
     unset GO_SHELL_SCRIPT
 }""",
 }
+_gDriverFromShell['zsh'] = _gDriverFromShell['sh']
 
 
 
@@ -383,6 +384,8 @@ def _getShell():
             return "sh"
         elif "/tcsh" in shell_path or "/csh" in shell_path:
             return "csh"
+        elif "/zsh" in shell_path:
+            return "zsh"
     else:
         raise InternalGoError("couldn't determine your shell (SHELL=%r)"
                               % os.environ.get("SHELL"))
