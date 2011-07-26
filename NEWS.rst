@@ -1,7 +1,7 @@
 Change Log
 ----------
 
-* v1.2.1
+* v1.3.0
     - Fix the helper command line "setup" code to work with Python 2.4.
     - Include a ``go-setup`` script as an alternative to ``python -m go``
     - Experimental integration with `sources <https://github.com/trentm/sources>`_
