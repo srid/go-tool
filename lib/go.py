@@ -88,8 +88,8 @@ _subsystem = "console"
 if sys.platform.startswith("win") and\
    os.path.splitext(sys.executable)[0][-1] == 'w':
     _subsystem = "windows"
-    
-    
+
+
 _gDriverFromShell = {
     "cmd": """\
 @echo off
@@ -173,7 +173,7 @@ def getSourcesShortcuts():
 
 def setShortcut(name, value):
     """Add the given shortcut mapping to the XML database.
-    
+
         <shortcuts version="...">
             <shortcut name="..." value="..."/>
         </shortcuts>
@@ -266,7 +266,7 @@ def resolvePath(path):
         raise GoError("no path was given")
 
     return target
-    
+
 
 def generateShellScript(scriptName, path=None):
     """Generate a shell script with the given name to change to the
@@ -355,7 +355,7 @@ def printShortcuts(shortcuts, subheader=None):
         import win32con
         win32ui.MessageBox(table, "Go Shortcuts",
                            win32con.MB_OK | win32con.MB_ICONINFORMATION)
-        
+
     else:
         sys.stdout.write(table)
 
@@ -521,7 +521,7 @@ Thanks!""" % (_indent(_gDriverFromShell["sh"]), shell)
 # Recipe: query_custom_answers (1.0)
 def _query_custom_answers(question, answers, default=None):
     """Ask a question via raw_input() and return the chosen answer.
-    
+
     @param question {str} Printed on stdout before querying the user.
     @param answers {list} A list of acceptable string answers. Particular
         answers can include '&' before one of its letters to allow a
@@ -529,7 +529,7 @@ def _query_custom_answers(question, answers, default=None):
         "&quit"]. All answer strings should be lowercase.
     @param default {str, optional} A default answer. If no default is
         given, then the user must provide an answer. With a default,
-        just hitting <Enter> is sufficient to choose. 
+        just hitting <Enter> is sufficient to choose.
     """
     prompt_bits = []
     answer_from_valid_choice = {
@@ -623,12 +623,9 @@ def main(argv):
 
     # Parse options
     try:
-        shortopts = "hVcsadl"
+        shortopts = "hVcsadlo"
         longopts = ['help', 'version', 'cd', 'set', 'add-current',
-                    'delete', 'list']
-        if sys.platform.startswith("win"):
-            shortopts += "o"
-            longopts.append("open")
+                    'delete', 'list', 'open']
         optlist, args = getopt.getopt(argv[1:], shortopts, longopts)
     except getopt.GetoptError, ex:
         msg = ex.msg
@@ -725,7 +722,7 @@ def main(argv):
             if os.path.basename(comspec).lower() == "cmd.exe":
                 argv += ["&&", "title", '%s' % dir]
             os.spawnv(os.P_NOWAIT, comspec, argv)
-            
+
         else:
             error("Internal error: subsystem is 'windows' and platform is "
                   "not win32")
@@ -746,7 +743,7 @@ def main(argv):
             error("Incorrect number of arguments. argv: %s" % argv)
             return 1
 
-    elif action == "open" and sys.platform.startswith("win"):
+    elif action == "open":
         if len(args) != 1:
             error("Incorrect number of arguments. argv: %s" % argv)
             return 1
@@ -754,23 +751,31 @@ def main(argv):
 
         try:
             dir = resolvePath(path)
+        except KeyError, ex:
+            error("Unrecognized shortcut: '%s'" % str(ex))
+            return 1
         except GoError, ex:
             error("Error resolving '%s': %s" % (path, ex))
             return 1
 
-        import win32api
-        try:
-            explorerExe, offset = win32api.SearchPath(None, "explorer.exe")
-        except win32api.error, ex:
-            error("Could not find 'explorer.exe': %s" % ex)
-            return 1
+        if sys.platform.startswith("win"):
+            import win32api
+            try:
+                explorerExe, offset = win32api.SearchPath(None, "explorer.exe")
+            except win32api.error, ex:
+                error("Could not find 'explorer.exe': %s" % ex)
+                return 1
+            os.spawnv(os.P_NOWAIT, explorerExe, [explorerExe, '/E,"%s"' % dir])
 
-        os.spawnv(os.P_NOWAIT, explorerExe, [explorerExe, '/E,"%s"' % dir])
+        elif sys.platform == "darwin":
+            os.system('open "%s"' % dir)
+        else:
+            error("Platform not supported: %s" % sys.platform)
 
     else:
         error("Internal Error: unknown action: '%s'\n")
         return 1
-        
+
 
 if __name__ == "__main__":
     if _subsystem == "windows":
