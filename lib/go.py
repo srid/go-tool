@@ -99,7 +99,7 @@ call python -m go %1 %2 %3 %4 %5 %6 %7 %8 %9
 if exist %GO_SHELL_SCRIPT% call %GO_SHELL_SCRIPT%
 set GO_SHELL_SCRIPT=""",
     "sh": """\
-# Bash shell driver for 'go' (http://code.google.com/p/go-tool/).
+# Bash/ZSH shell driver for 'go' (http://code.google.com/p/go-tool/).
 function go {
     export GO_SHELL_SCRIPT=$HOME/.__tmp_go.sh
     python -m go $*
@@ -109,6 +109,7 @@ function go {
     unset GO_SHELL_SCRIPT
 }""",
 }
+_gDriverFromShell['zsh'] = _gDriverFromShell['sh']
 
 
 
@@ -383,6 +384,8 @@ def _getShell():
             return "sh"
         elif "/tcsh" in shell_path or "/csh" in shell_path:
             return "csh"
+        elif "/zsh" in shell_path:
+            return "zsh"
     else:
         raise InternalGoError("couldn't determine your shell (SHELL=%r)"
                               % os.environ.get("SHELL"))
@@ -474,6 +477,50 @@ function.""" % _indent(driver)
         candidates = ["~/.bashrc", "~/.bash_profile", "~/.bash_login",
                       "~/.profile"]
         candidates = [c for c in candidates if exists(expanduser(c))]
+        if candidates:
+            q = """\
+Would you like this script to append `function go' to one of the following
+Bash initialization scripts? If so, enter the number of the listed file.
+Otherwise, enter `no'."""
+            for i, path in enumerate(candidates):
+                q += "\n (%d) %s" % (i+1, path)
+            answers = [str(i+1) for i in range(len(candidates))] + ["&no"]
+            print
+            answer = _query_custom_answers(q, answers, default="no")
+            if answer == "no":
+                pass
+            else:
+                path = candidates[int(answer)-1]
+                xpath = expanduser(path)
+                f = codecs.open(xpath, 'a', 'utf-8')
+                try:
+                    f.write('\n\n'+driver)
+                finally:
+                    f.close()
+                print
+                print "`function go' appended to `%s'." % path
+                print "Run `source %s` to enable this for this shell." % path
+                print "You should then be able to run `go --help'."
+    elif shell == "zsh":
+        print """\
+It appears that `go' is not setup properly in your environment. Typing
+`go' must end up calling the ZSH function `go' and *not* `go.py'
+directly. This is how `go' can change the directory in your current shell.
+
+You'll need to have the following function in your shell startup script
+(e.g. `.zshrc' or `.zprofile'):
+
+%s
+
+To just play around in your current shell, simple cut and paste this
+function.""" % _indent(driver)
+
+        candidates = ["~/.zshrc", "~/.zprofile", "~/.zlogin", "~/.zshenv",
+                      ]
+        candidates = [c for c in candidates if exists(expanduser(c))]
+        if exists(expanduser("~/.oh-my-zsh/custom")):
+            candidates.append("~/.oh-my-zsh/custom/go-tool.zsh")
+            
         if candidates:
             q = """\
 Would you like this script to append `function go' to one of the following
