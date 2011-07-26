@@ -6,6 +6,7 @@ Change Log
     - Include a ``go-setup`` script as an alternative to ``python -m go``
     - Experimental integration with `sources <https://github.com/trentm/sources>`_
     - ZSH support.
+    - Support --open option on Mac OS X.
 
 * v1.2.0
     -  Add support for "go FOO" falling back to changing to subdirectory
