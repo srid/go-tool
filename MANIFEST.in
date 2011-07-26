@@ -1,1 +1,1 @@
-include *.py *.in *.txt
+include *.py *.in *.txt *.rst
