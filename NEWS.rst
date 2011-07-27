@@ -7,6 +7,7 @@ Change Log
     - Experimental integration with `sources <https://github.com/trentm/sources>`_
     - ZSH support.
     - Support --open option on Mac OS X.
+    - ``go`` now always uses the original Python executable
 
 * v1.2.0
     -  Add support for "go FOO" falling back to changing to subdirectory

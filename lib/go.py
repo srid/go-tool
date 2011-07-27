@@ -91,24 +91,28 @@ if sys.platform.startswith("win") and\
 
 
 _gDriverFromShell = {
+    # Windows Command Prompt
     "cmd": """\
 @echo off
 rem Windows shell driver for 'go' (http://code.google.com/p/go-tool/).
 set GO_SHELL_SCRIPT=%TEMP%\__tmp_go.bat
-call python -m go %1 %2 %3 %4 %5 %6 %7 %8 %9
+call PYTHON -m go %1 %2 %3 %4 %5 %6 %7 %8 %9
 if exist %GO_SHELL_SCRIPT% call %GO_SHELL_SCRIPT%
-set GO_SHELL_SCRIPT=""",
+set GO_SHELL_SCRIPT=""".replace('PYTHON', sys.executable),
+
+    # BASH
     "sh": """\
 # Bash/ZSH shell driver for 'go' (http://code.google.com/p/go-tool/).
 function go {
     export GO_SHELL_SCRIPT=$HOME/.__tmp_go.sh
-    python -m go $*
+    PYTHON -m go $*
     if [ -f $GO_SHELL_SCRIPT ] ; then
         source $GO_SHELL_SCRIPT
     fi
     unset GO_SHELL_SCRIPT
-}""",
+}""".replace('PYTHON', sys.executable),
 }
+# ZSH - reuse the above BASH script
 _gDriverFromShell['zsh'] = _gDriverFromShell['sh']
 
 
@@ -155,6 +159,7 @@ def getDefaultShortcuts():
     except KeyError:
         pass
     return shortcuts
+
 
 def getSourcesShortcuts():
     """Return the dictionary shortcuts from ~/.sources"""
